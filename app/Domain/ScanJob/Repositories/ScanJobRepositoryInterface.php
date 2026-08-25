@@ -4,6 +4,7 @@ namespace App\Domain\ScanJob\Repositories;
 
 use App\Domain\ScanJob\ScanJob;
 use App\Domain\ScanJob\ScanStatus;
+use App\Domain\ScanJob\ScanType;
 
 interface ScanJobRepositoryInterface
 {

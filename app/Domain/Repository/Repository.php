@@ -21,6 +21,7 @@ final class Repository
         string $htmlUrl,
         public readonly ?int $staleThresholdDays = null,
         public readonly ?CarbonInterface $lastScannedAt = null,
+        public readonly bool $archived = false,
         public readonly ?int $id = null,
     ) {
         if ($githubId <= 0) {
