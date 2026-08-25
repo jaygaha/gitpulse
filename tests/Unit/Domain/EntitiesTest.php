@@ -60,7 +60,7 @@ it('constructs the core entities', function () {
         author: 'jay',
         baseRef: 'main',
         headRef: 'feature/graphql',
-        lastCommitAt: now()->subHours(2),
+        lastActivityAt: now()->subHours(2),
         checksStatus: ['status' => 'success'],
         htmlUrl: 'https://github.com/jaygaha/gitpulse/pull/3',
     );
