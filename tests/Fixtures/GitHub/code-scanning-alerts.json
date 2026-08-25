@@ -1,0 +1,7 @@
+{
+    "number": 5,
+    "state": "OPEN",
+    "securitySeverityLevel": "HIGH",
+    "description": "SQL injection via unsanitized input",
+    "url": "https://github.com/jaygaha/gitpulse/security/code-scanning/5"
+}

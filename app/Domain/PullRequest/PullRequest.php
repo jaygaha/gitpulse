@@ -22,7 +22,7 @@ final class PullRequest
         public readonly ?string $author,
         public readonly string $baseRef,
         public readonly string $headRef,
-        public readonly ?CarbonInterface $lastCommitAt,
+        public readonly ?CarbonInterface $lastActivityAt,
         public readonly array $checksStatus,
         string $htmlUrl,
         public readonly ?CarbonInterface $mergedAt = null,

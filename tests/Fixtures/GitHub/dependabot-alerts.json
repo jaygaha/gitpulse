@@ -1,0 +1,16 @@
+[
+    {
+        "number": 77,
+        "state": "open",
+        "dependency": { "package": { "name": "guzzlehttp/guzzle", "ecosystem": "composer" } },
+        "security_advisory": {
+            "severity": "critical",
+            "summary": "SSRF in redirect handling",
+            "ghsa_id": "GHSA-test-0001",
+            "html_url": "https://github.com/advisories/GHSA-test-0001"
+        },
+        "html_url": "https://github.com/jaygaha/gitpulse/security/dependabot/77",
+        "dismissed_at": null,
+        "fixed_at": null
+    }
+]
