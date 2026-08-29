@@ -46,8 +46,8 @@ final class RepositoryDetail extends Component
         $moderate = $repoAlerts->filter(fn ($a) => $a->severity->value === 'medium')->count();
         $low = $repoAlerts->filter(fn ($a) => $a->severity->value === 'low')->count();
 
-        $staleIssues = collect($issueRows)->filter(fn ($r) => $r['isStale'])->count();
-        $stalePrs = collect($prRows)->filter(fn ($r) => $r['isStale'])->count();
+        $staleIssues = collect($issueRows)->filter(fn ($r) => $r['isStale'] && $r['issue']->isOpen())->count();
+        $stalePrs = collect($prRows)->filter(fn ($r) => $r['isStale'] && $r['pr']->isOpen())->count();
 
         $totalIssues = count($issueRows);
         $totalPrs = count($prRows);
@@ -60,14 +60,14 @@ final class RepositoryDetail extends Component
             'time' => $a->dismissedAt?->diffForHumans() ?? 'now',
         ])->values();
 
-        $staleIssuesFeed = collect($issueRows)->filter(fn ($r) => $r['isStale'])->map(fn ($r) => [
+        $staleIssuesFeed = collect($issueRows)->filter(fn ($r) => $r['isStale'] && $r['issue']->isOpen())->map(fn ($r) => [
             'type' => 'warning',
             'title' => $r['issue']->title,
             'meta' => $repository->fullName.'#'.$r['issue']->number.' · opened '.optional($r['issue']->lastActivityAt)->diffForHumans(),
             'badge' => 'stale',
         ])->values();
 
-        $stalePrsFeed = collect($prRows)->filter(fn ($r) => $r['isStale'])->map(fn ($r) => [
+        $stalePrsFeed = collect($prRows)->filter(fn ($r) => $r['isStale'] && $r['pr']->isOpen())->map(fn ($r) => [
             'type' => 'warning',
             'title' => $r['pr']->title,
             'meta' => $repository->fullName.'#'.$r['pr']->number.' · opened '.optional($r['pr']->lastActivityAt)->diffForHumans(),

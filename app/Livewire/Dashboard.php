@@ -32,8 +32,8 @@ final class Dashboard extends Component
             $critical = collect($openAlerts)->filter(fn ($a) => $a->severity->value === 'critical')->count();
             $warning = collect($openAlerts)->filter(fn ($a) => in_array($a->severity->value, ['high', 'medium']))->count();
 
-            $staleIssues = collect($dashboardQuery->issuesForRepository($repo->id))->filter(fn ($r) => $r['isStale'])->count();
-            $stalePrs = collect($dashboardQuery->pullRequestsForRepository($repo->id))->filter(fn ($r) => $r['isStale'])->count();
+            $staleIssues = collect($dashboardQuery->issuesForRepository($repo->id))->filter(fn ($r) => $r['isStale'] && $r['issue']->isOpen())->count();
+            $stalePrs = collect($dashboardQuery->pullRequestsForRepository($repo->id))->filter(fn ($r) => $r['isStale'] && $r['pr']->isOpen())->count();
 
             $status = 'healthy';
             if ($critical > 0) {

@@ -38,7 +38,7 @@
                         </td>
                         <td class="px-2 py-2"><span class="rounded px-1.5 py-0.5 text-[10px] {{ $row['issue']->state === 'open' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-slate-500/10 text-slate-500' }}">{{ $row['issue']->state }}</span></td>
                         <td class="px-2 py-2">
-                            @if ($row['isStale'])
+                            @if ($row['isStale'] && $row['issue']->isOpen())
                                 <span class="rounded px-1.5 py-0.5 text-[10px] font-semibold" style="background: var(--warning-dim); color: var(--warning); border: 1px solid var(--warning);">stale</span>
                             @else
                                 <span class="text-[10px]" style="color: var(--text-tertiary);">—</span>
