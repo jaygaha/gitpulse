@@ -75,10 +75,16 @@ final class Topbar extends Component
     }
 
     #[On('repo-selected')]
-    public function selectRepo(string $name): void
+    public function selectRepo(string $slug = '', string $name = ''): void
     {
+        $resolved = $slug !== '' ? $slug : $name;
+
+        if ($resolved === '') {
+            return;
+        }
+
         $this->showModal = false;
 
-        $this->redirect(route('repo.detail', $name), navigate: true);
+        $this->redirect(route('repo.detail', $resolved), navigate: true);
     }
 }
