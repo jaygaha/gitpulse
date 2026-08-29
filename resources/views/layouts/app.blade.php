@@ -13,13 +13,8 @@
 </head>
 <body class="antialiased">
     <livewire:topbar />
-    <div class="flex" style="max-width: 1280px; margin: 0 auto; gap: 24px; padding: 16px;">
-        <aside class="hidden lg:block" style="width: 260px; flex-shrink: 0; margin-top: 8px;">
-            <livewire:repo-sidebar />
-        </aside>
-        <main class="flex-1 min-w-0">
-            {{ $slot }}
-        </main>
+    <div style="max-width: 1280px; margin: 0 auto; padding: 16px;">
+        {{ $slot }}
     </div>
     @livewireScripts
 </body>
