@@ -69,6 +69,18 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "lint":[
+            "echo 'Running PHP linting...'",
+            "@php vendor/bin/pint --test"
+        ],
+        "lint:fix":[
+            "echo 'Fixing PHP linting issues...'",
+            "@php vendor/bin/pint"
+        ],
+        "lint:dirty": [
+            "echo 'Running only modified files...'",
+            "@lint:fix --dirty --diff=main"
         ]
     },
     "extra": {
