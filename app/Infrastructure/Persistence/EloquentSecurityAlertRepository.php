@@ -46,6 +46,7 @@ final class EloquentSecurityAlertRepository implements SecurityAlertRepositoryIn
         return SecurityAlertModel::with('repository')
             ->whereNull('dismissed_at')
             ->whereNull('fixed_at')
+            ->orderByRaw("CASE severity WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END")
             ->limit($limit)
             ->offset($offset)
             ->get()

@@ -46,7 +46,7 @@ it('keeps caller query params and injected per_page on every page request', func
         'GET /repos/jaygaha/gitpulse/issues' => function ($q) use (&$seenQueries) {
             $seenQueries[] = $q;
 
-            return (int) ($q['page'] ?? 1) === 1 ? [['id' => 9001]] : [];
+            return (int) ($q['page'] ?? 1) === 1 ? [['id' => 9001], ['id' => 9002]] : [];
         },
     ]);
 
@@ -54,8 +54,8 @@ it('keeps caller query params and injected per_page on every page request', func
 
     expect($seenQueries)->toHaveCount(2)
         ->and($seenQueries[0]['state'])->toBe('open')
-        ->and($seenQueries[0]['per_page'])->toBe(2)
-        ->and($seenQueries[1]['page'])->toBe(2);
+        ->and((int) $seenQueries[0]['per_page'])->toBe(2)
+        ->and((int) $seenQueries[1]['page'])->toBe(2);
 });
 
 it('stops paginating once the page cap is exceeded', function () {
