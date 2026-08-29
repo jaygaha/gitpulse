@@ -4,6 +4,8 @@ use App\Domain\Issue\Issue;
 use App\Domain\Issue\Repositories\IssueRepositoryInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
 use App\Domain\Repository\Repository;
+use App\Domain\ScanJob\Repositories\ScanJobRepositoryInterface;
+use App\Domain\ScanJob\ScanType;
 use App\Jobs\ScanRepositoryJob;
 use App\Livewire\Dashboard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -55,4 +57,29 @@ it('queues a manual scan when Scan Now is pressed', function () {
         ->call('scanNow');
 
     Queue::assertPushed(ScanRepositoryJob::class);
+});
+
+it('shows stale badge and marks repo as warning when issues are stale', function () {
+    $repo = uiRepo(503);
+    app(IssueRepositoryInterface::class)->upsertForRepository($repo->id, [
+        new Issue(2, 99, 'Very stale issue', 'open', [], null, now()->subDays(45), 'https://x/99'),
+    ]);
+
+    Livewire::test(Dashboard::class)
+        ->assertSee('stale')
+        ->assertSee('warning');
+});
+
+it('prevents a second scan while one is already running', function () {
+    Queue::fake();
+    uiRepo(504);
+
+    $scanJobs = app(ScanJobRepositoryInterface::class);
+    $scanJobs->startLatest(ScanType::MANUAL);
+
+    Livewire::test(Dashboard::class)
+        ->call('scanNow')
+        ->assertSeeHtml('already running');
+
+    Queue::assertNotPushed(ScanRepositoryJob::class);
 });

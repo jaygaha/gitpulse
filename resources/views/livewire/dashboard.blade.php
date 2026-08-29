@@ -1,4 +1,4 @@
-<div>
+<div wire:poll.2s>
     @if (session('status'))
         <div style="max-width: 900px; margin: 24px auto 0; padding: 0 24px;">
             <div style="background: var(--success); color: white; padding: 8px 12px; font-family: var(--font-mono); font-size: 12px;">{{ session('status') }}</div>
@@ -73,9 +73,15 @@
                     </div>
                     <div class="repo-table-cell repo-table-cell--issues">
                         <span class="repo-mono">{{ $row['issues'] }}</span>
+                        @if (($row['staleIssues'] ?? 0) > 0)
+                            <span class="ml-1 rounded px-1 text-[10px] font-semibold" style="background: var(--warning-dim); color: var(--warning); border: 1px solid var(--warning);">{{ $row['staleIssues'] }} stale</span>
+                        @endif
                     </div>
                     <div class="repo-table-cell repo-table-cell--prs">
                         <span class="repo-mono">{{ $row['prs'] }}</span>
+                        @if (($row['stalePrs'] ?? 0) > 0)
+                            <span class="ml-1 rounded px-1 text-[10px] font-semibold" style="background: var(--warning-dim); color: var(--warning); border: 1px solid var(--warning);">{{ $row['stalePrs'] }} stale</span>
+                        @endif
                     </div>
                     <div class="repo-table-cell repo-table-cell--alerts">
                         @if ($row['critical'] > 0)

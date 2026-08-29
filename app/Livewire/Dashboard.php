@@ -2,11 +2,11 @@
 
 namespace App\Livewire;
 
+use App\Application\Queries\GetDashboardQuery;
 use App\Domain\Issue\Repositories\IssueRepositoryInterface;
 use App\Domain\PullRequest\Repositories\PullRequestRepositoryInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
 use App\Domain\ScanJob\Repositories\ScanJobRepositoryInterface;
-use App\Domain\ScanJob\ScanStatus;
 use App\Domain\ScanJob\ScanType;
 use App\Domain\SecurityAlert\Repositories\SecurityAlertRepositoryInterface;
 use App\Jobs\ScanRepositoryJob;
@@ -21,20 +21,24 @@ final class Dashboard extends Component
         IssueRepositoryInterface $issues,
         PullRequestRepositoryInterface $pullRequests,
         SecurityAlertRepositoryInterface $alerts,
+        GetDashboardQuery $dashboardQuery,
     ): View {
         $repos = collect($repositories->all())->filter(fn ($r) => ! $r->archived)->values();
 
-        $rows = $repos->map(function ($repo) use ($issues, $pullRequests, $alerts) {
+        $rows = $repos->map(function ($repo) use ($issues, $pullRequests, $alerts, $dashboardQuery) {
             $issueCount = $issues->countOpenForRepository($repo->id);
             $prCount = $pullRequests->countOpenForRepository($repo->id);
             $openAlerts = $alerts->openForRepository($repo->id);
             $critical = collect($openAlerts)->filter(fn ($a) => $a->severity->value === 'critical')->count();
             $warning = collect($openAlerts)->filter(fn ($a) => in_array($a->severity->value, ['high', 'medium']))->count();
 
+            $staleIssues = collect($dashboardQuery->issuesForRepository($repo->id))->filter(fn ($r) => $r['isStale'])->count();
+            $stalePrs = collect($dashboardQuery->pullRequestsForRepository($repo->id))->filter(fn ($r) => $r['isStale'])->count();
+
             $status = 'healthy';
             if ($critical > 0) {
                 $status = 'critical';
-            } elseif ($warning > 0 || $issueCount > 10 || $prCount > 5) {
+            } elseif ($warning > 0 || $staleIssues > 0 || $stalePrs > 0) {
                 $status = 'warning';
             }
 
@@ -46,6 +50,8 @@ final class Dashboard extends Component
                 'alerts' => $openAlerts,
                 'critical' => $critical,
                 'warning' => $warning,
+                'staleIssues' => $staleIssues,
+                'stalePrs' => $stalePrs,
             ];
         })->sort(function ($a, $b) {
             $order = ['critical' => 0, 'warning' => 1, 'healthy' => 2];
@@ -82,6 +88,15 @@ final class Dashboard extends Component
 
     public function scanNow(): void
     {
+        $scanJobs = app(ScanJobRepositoryInterface::class);
+        $latest = $scanJobs->latest();
+
+        if ($latest !== null && $latest->status->isActive()) {
+            session()->flash('status', 'A scan is already running.');
+
+            return;
+        }
+
         $active = collect(app(RepositoryRepositoryInterface::class)->all())
             ->filter(fn ($r) => ! $r->archived)
             ->values();
@@ -92,14 +107,12 @@ final class Dashboard extends Component
             return;
         }
 
-        $scanJobs = app(ScanJobRepositoryInterface::class);
         $scanJobs->startLatest(ScanType::MANUAL);
 
         foreach ($active as $repository) {
             ScanRepositoryJob::dispatch($repository->id, $active->count());
         }
 
-        $scanJobs->finishLatest(ScanStatus::COMPLETED, $active->count(), 0);
         session()->flash('status', "Scan queued for {$active->count()} repo(s).");
     }
 }

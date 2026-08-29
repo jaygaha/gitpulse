@@ -25,9 +25,8 @@
 
     <div class="mt-6 border-t border-slate-200 pt-4 dark:border-slate-800">
         <h3 class="mb-3 text-xs font-semibold uppercase text-slate-500">Per-repository overrides</h3>
-        @forelse ($repoThresholds as $repoId => $threshold)
-            @php $repo = collect(app(\App\Domain\Repository\Repositories\RepositoryRepositoryInterface::class)->all())->firstWhere('id', $repoId); @endphp
-            @if ($repo)
+        @forelse ($repos as $repo)
+            @php $repoId = $repo->id; $threshold = $repoThresholds[$repoId] ?? null; @endphp
                 <div class="mb-3 flex items-center justify-between gap-2">
                     <span class="truncate text-xs font-medium">{{ $repo->name }}</span>
                     <div class="flex items-center gap-1">
@@ -37,7 +36,6 @@
                     </div>
                 </div>
                 @error("repoThresholds.{$repoId}") <span class="mb-2 block text-xs text-red-600">{{ $message }}</span> @enderror
-            @endif
         @empty
             <p class="text-xs text-slate-500">No repositories synced yet.</p>
         @endforelse

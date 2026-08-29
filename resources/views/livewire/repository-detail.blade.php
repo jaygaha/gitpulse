@@ -61,87 +61,27 @@
         </div>
     @endif
 
+    <div class="mt-6 flex gap-2 border-b" style="border-color: var(--border);">
+        <button wire:click="setTab('issues')" class="px-3 py-2 text-xs font-semibold {{ $activeTab === 'issues' ? 'border-b-2' : '' }}" style="{{ $activeTab === 'issues' ? 'border-color: var(--brand); color: var(--brand);' : 'color: var(--text-secondary);' }}">Issues ({{ $totalIssues }}) @if($staleIssues>0)<span class="ml-1 rounded px-1 text-[10px]" style="background: var(--warning-dim); color: var(--warning);">{{ $staleIssues }} stale</span>@endif</button>
+        <button wire:click="setTab('prs')" class="px-3 py-2 text-xs font-semibold {{ $activeTab === 'prs' ? 'border-b-2' : '' }}" style="{{ $activeTab === 'prs' ? 'border-color: var(--brand); color: var(--brand);' : 'color: var(--text-secondary);' }}">Pull Requests ({{ $totalPrs }}) @if($stalePrs>0)<span class="ml-1 rounded px-1 text-[10px]" style="background: var(--warning-dim); color: var(--warning);">{{ $stalePrs }} stale</span>@endif</button>
+        <button wire:click="setTab('alerts')" class="px-3 py-2 text-xs font-semibold {{ $activeTab === 'alerts' ? 'border-b-2' : '' }}" style="{{ $activeTab === 'alerts' ? 'border-color: var(--brand); color: var(--brand);' : 'color: var(--text-secondary);' }}">Security Alerts ({{ $critical + $high + $moderate + $low }}) @if($critical>0)<span class="ml-1 rounded px-1 text-[10px]" style="background: var(--error-dim); color: var(--error);">{{ $critical }} critical</span>@endif</button>
+    </div>
+
+    <div class="mt-4">
+        @if ($activeTab === 'issues')
+            <livewire:issues-tab :repository-id="$repository->id" :key="'issues-'.$repository->id" />
+        @elseif ($activeTab === 'prs')
+            <livewire:pull-requests-tab :repository-id="$repository->id" :key="'prs-'.$repository->id" />
+        @elseif ($activeTab === 'alerts')
+            <livewire:security-alerts-tab :repository-id="$repository->id" :key="'alerts-'.$repository->id" />
+        @endif
+    </div>
+
     @if ($critical === 0 && $staleIssues === 0 && $stalePrs === 0)
         <div class="empty-state" style="margin-top: 24px;">
             <div class="empty-state-icon">⌀</div>
             <div class="empty-state-title">No findings yet</div>
-            <div class="empty-state-desc">All clear — no actionable findings for {{ $repository->name }}.</div>
-        </div>
-    @else
-        <div class="feed">
-            @if ($criticalFeed->isNotEmpty())
-                <div class="feed-section">
-                    <div class="feed-section-header">Critical alerts — {{ $criticalFeed->count() }}</div>
-                    @foreach ($criticalFeed as $item)
-                        <div class="feed-item critical">
-                            <div class="feed-icon critical">!</div>
-                            <div class="feed-content">
-                                <div class="feed-title">{{ $item['title'] }}</div>
-                                <div class="feed-meta">
-                                    <span class="feed-badge critical">critical</span>
-                                    <span class="feed-meta-sep">·</span>
-                                    <span class="feed-meta-item">{{ $repository->fullName }}</span>
-                                    <span class="feed-meta-sep">·</span>
-                                    <span class="feed-meta-item">{{ $item['meta'] }}</span>
-                                    <span class="feed-meta-sep">·</span>
-                                    <span class="feed-meta-item">{{ $item['time'] }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-
-            @if ($staleIssuesFeed->isNotEmpty())
-                <div class="feed-section">
-                    <div class="feed-section-header">Stale issues — {{ $staleIssuesFeed->count() }}</div>
-                    @foreach ($staleIssuesFeed as $item)
-                        <div class="feed-item warning">
-                            <div class="feed-icon warning">#</div>
-                            <div class="feed-content">
-                                <div class="feed-title">{{ $item['title'] }}</div>
-                                <div class="feed-meta">
-                                    <span class="feed-badge warning">stale</span>
-                                    <span class="feed-meta-sep">·</span>
-                                    <span class="feed-meta-item">{{ $item['meta'] }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-
-            @if ($stalePrsFeed->isNotEmpty())
-                <div class="feed-section">
-                    <div class="feed-section-header">Stale PRs — {{ $stalePrsFeed->count() }}</div>
-                    @foreach ($stalePrsFeed as $item)
-                        <div class="feed-item warning">
-                            <div class="feed-icon warning">PR</div>
-                            <div class="feed-content">
-                                <div class="feed-title">{{ $item['title'] }}</div>
-                                <div class="feed-meta">
-                                    <span class="feed-badge warning">stale</span>
-                                    <span class="feed-meta-sep">·</span>
-                                    <span class="feed-meta-item">{{ $item['meta'] }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-
-            @if ($critical === 0 && $staleIssues === 0 && $stalePrs === 0)
-                <div class="feed-section">
-                    <div class="feed-section-header">Healthy</div>
-                    <div class="feed-item info">
-                        <div class="feed-icon info">—</div>
-                        <div class="feed-content">
-                            <div class="feed-title">All clear — no actionable findings</div>
-                            <div class="feed-meta"><span class="feed-badge success">healthy</span></div>
-                        </div>
-                    </div>
-                </div>
-            @endif
+            <div class="empty-state-desc">All clear — no actionable findings for {{ $repository->name }}. Use the tabs above to browse all items.</div>
         </div>
     @endif
 </div>

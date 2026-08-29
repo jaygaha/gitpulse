@@ -2,17 +2,17 @@
 
 namespace App\Livewire;
 
-use App\Models\ScanJob;
+use App\Domain\ScanJob\Repositories\ScanJobRepositoryInterface;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 final class ScanMonitor extends Component
 {
-    public function render(): View
+    public function render(ScanJobRepositoryInterface $scanJobs): View
     {
         return view('livewire.scan-monitor', [
-            'lastScan' => ScanJob::query()->latest('id')->first(),
+            'lastScan' => $scanJobs->latest(),
             'queued' => DB::table('jobs')->count(),
             'failed' => DB::table('failed_jobs')->count(),
         ]);

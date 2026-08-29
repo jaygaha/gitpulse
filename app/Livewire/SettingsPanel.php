@@ -61,8 +61,10 @@ final class SettingsPanel extends Component
         $this->status = 'Per-repo threshold saved.';
     }
 
-    public function render(): View
+    public function render(RepositoryRepositoryInterface $repositories): View
     {
-        return view('livewire.settings-panel');
+        return view('livewire.settings-panel', [
+            'repos' => collect($repositories->all())->sortBy(fn ($r) => strtolower($r->fullName))->values(),
+        ]);
     }
 }

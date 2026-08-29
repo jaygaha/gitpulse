@@ -12,9 +12,18 @@ final class RepositoryDetail extends Component
 {
     public string $slug;
 
+    public string $activeTab = 'issues';
+
     public function mount(string $slug): void
     {
         $this->slug = $slug;
+    }
+
+    public function setTab(string $tab): void
+    {
+        if (in_array($tab, ['issues', 'prs', 'alerts'], true)) {
+            $this->activeTab = $tab;
+        }
     }
 
     public function render(
@@ -79,6 +88,7 @@ final class RepositoryDetail extends Component
             'staleIssuesFeed' => $staleIssuesFeed,
             'stalePrsFeed' => $stalePrsFeed,
             'lastScan' => ScanJob::query()->latest('id')->first(),
+            'activeTab' => $this->activeTab,
         ])->layout('layouts.app');
     }
 }
