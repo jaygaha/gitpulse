@@ -3,6 +3,7 @@
 namespace App\Application\Handlers;
 
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
+use App\Domain\SecurityAlert\AlertType;
 use App\Domain\SecurityAlert\Repositories\SecurityAlertRepositoryInterface;
 use App\Infrastructure\GitHub\GitHubRestClientInterface;
 
@@ -15,17 +16,20 @@ final class DismissSecurityAlertHandler
     ) {}
 
     /** Dismisses upstream first; only on success marks the local row dismissed. */
-    public function __invoke(int $repositoryId, int $alertGithubId, string $type = 'dependabot', ?string $reason = null): void
+    public function __invoke(int $repositoryId, int $alertGithubId, AlertType|string $type = AlertType::DEPENDABOT, ?string $reason = null): void
     {
         $repository = $this->repositories->find($repositoryId)
             ?? throw new \InvalidArgumentException("Repository {$repositoryId} not found.");
 
-        if ($type !== 'dependabot') {
-            throw new \InvalidArgumentException("Dismissal for type '{$type}' is not supported yet.");
-        }
+        $alertType = $type instanceof AlertType ? $type : AlertType::fromString($type);
+
+        $endpoint = match ($alertType) {
+            AlertType::DEPENDABOT => "/repos/{$repository->fullName}/dependabot/alerts/{$alertGithubId}",
+            AlertType::CODE_SCANNING => "/repos/{$repository->fullName}/code-scanning/alerts/{$alertGithubId}",
+        };
 
         $this->github->patch(
-            "/repos/{$repository->fullName}/dependabot/alerts/{$alertGithubId}",
+            $endpoint,
             ['state' => 'dismissed', ...($reason ? ['dismissed_reason' => $reason] : [])],
         );
 

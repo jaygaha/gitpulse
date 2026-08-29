@@ -48,21 +48,20 @@ final class SyncRepositoryDataHandler
 
         [$owner, $name] = explode('/', $repository->fullName, 2);
 
+        $issuePayloads = array_filter(
+            $this->github->getPaginated("/repos/{$repository->fullName}/issues", ['state' => 'all']),
+            fn (array $payload) => ! isset($payload['pull_request']),
+        );
+
         $issueEntities = array_map(
             fn (array $payload) => IssueMapper::fromApiResponse($payload),
-            $this->github->getPaginated("/repos/{$repository->fullName}/issues", ['state' => 'all']),
+            $issuePayloads,
         );
 
         $prEntities = array_map(
             fn (array $payload) => PullRequestMapper::fromApiResponse($payload),
             $this->github->getPaginated("/repos/{$repository->fullName}/pulls", ['state' => 'all']),
         );
-
-        // REST /issues also returns PRs; keep only true issues.
-        $issueEntities = array_values(array_filter(
-            $issueEntities,
-            fn ($issue) => ! str_contains($issue->htmlUrl, '/pull/'),
-        ));
 
         $dependabot = array_map(
             fn (array $payload) => SecurityAlertMapper::fromDependabotResponse($payload),
@@ -93,8 +92,11 @@ final class SyncRepositoryDataHandler
     private function safeDependabot(string $fullName): array
     {
         try {
-            return $this->github->getPaginated("/repos/{$fullName}/dependabot/alerts", ['state' => 'open']);
-        } catch (\Throwable) {
+            // Dependabot endpoint does not support `page` pagination (see GitHub docs)
+            return $this->github->get("/repos/{$fullName}/dependabot/alerts", ['state' => 'open']);
+        } catch (\Exception $e) {
+            report($e);
+
             return [];
         }
     }
@@ -105,7 +107,9 @@ final class SyncRepositoryDataHandler
             $data = $this->graphql->query(self::CODE_SCANNING_QUERY, ['owner' => $owner, 'name' => $name]);
 
             return $data['repository']['codeScanningAlerts']['nodes'] ?? [];
-        } catch (\Throwable) {
+        } catch (\Exception $e) {
+            report($e);
+
             return [];
         }
     }

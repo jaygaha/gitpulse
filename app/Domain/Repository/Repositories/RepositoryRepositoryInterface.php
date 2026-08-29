@@ -28,5 +28,9 @@ interface RepositoryRepositoryInterface
     /** @param  list<int>  $ids  @return list<Repository> */
     public function findByIds(array $ids): array;
 
+    public function findBySlug(string $slug): ?Repository;
+
+    public function updateStaleThreshold(int $id, ?int $days): void;
+
     public function touchLastScanned(int $id): void;
 }

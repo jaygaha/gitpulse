@@ -72,6 +72,22 @@ final class EloquentRepositoryRepository implements RepositoryRepositoryInterfac
             ->all();
     }
 
+    public function findBySlug(string $slug): ?Repository
+    {
+        $model = RepositoryModel::whereRaw('LOWER(name) = ?', [strtolower($slug)])->first();
+
+        return $model ? $this->toDomain($model) : null;
+    }
+
+    public function updateStaleThreshold(int $id, ?int $days): void
+    {
+        if ($days !== null && $days <= 0) {
+            throw new \InvalidArgumentException('Stale threshold must be positive.');
+        }
+
+        RepositoryModel::whereKey($id)->update(['stale_threshold_days' => $days]);
+    }
+
     public function touchLastScanned(int $id): void
     {
         RepositoryModel::whereKey($id)->update(['last_scanned_at' => now()]);
