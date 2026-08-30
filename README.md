@@ -1,3 +1,5 @@
+<p align="center"><a href="#"><img src="public/images/git_pulse_logo.svg" width="220" alt="GitPulse Logo"></a></p>
+
 # GitPulse
 
 <p align="center">
