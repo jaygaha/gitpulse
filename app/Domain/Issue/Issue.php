@@ -13,7 +13,7 @@ final class Issue
 
     public readonly int $number;
 
-    public readonly string $htmlUrl;
+    public readonly Url $htmlUrl;
 
     /** @param  list<string>  $labels */
     public function __construct(
@@ -32,7 +32,7 @@ final class Issue
 
         $this->githubId = $githubId;
         $this->number = (new IssueNumber($number))->value;
-        $this->htmlUrl = Url::assertHttps($htmlUrl);
+        $this->htmlUrl = new Url($htmlUrl);
     }
 
     public function isOpen(): bool

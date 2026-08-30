@@ -27,7 +27,7 @@ final class EloquentSecurityAlertRepository implements SecurityAlertRepositoryIn
                         'advisory_url' => $alert->advisoryUrl,
                         'dismissed_at' => $alert->dismissedAt,
                         'fixed_at' => $alert->fixedAt,
-                        'html_url' => $alert->htmlUrl,
+                        'html_url' => (string) $alert->htmlUrl,
                     ],
                 );
             }
@@ -46,7 +46,7 @@ final class EloquentSecurityAlertRepository implements SecurityAlertRepositoryIn
             'advisory_url' => $alert->advisoryUrl,
             'dismissed_at' => $alert->dismissedAt,
             'fixed_at' => $alert->fixedAt,
-            'html_url' => $alert->htmlUrl,
+            'html_url' => (string) $alert->htmlUrl,
             'created_at' => $now,
             'updated_at' => $now,
         ], $alerts);

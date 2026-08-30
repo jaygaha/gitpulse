@@ -25,7 +25,7 @@ final class EloquentIssueRepository implements IssueRepositoryInterface
                         'labels' => $issue->labels,
                         'assignee' => $issue->assignee,
                         'last_activity_at' => $issue->lastActivityAt,
-                        'html_url' => $issue->htmlUrl,
+                        'html_url' => (string) $issue->htmlUrl,
                     ],
                 );
             }
@@ -43,7 +43,7 @@ final class EloquentIssueRepository implements IssueRepositoryInterface
             'labels' => json_encode($issue->labels),
             'assignee' => $issue->assignee,
             'last_activity_at' => $issue->lastActivityAt,
-            'html_url' => $issue->htmlUrl,
+            'html_url' => (string) $issue->htmlUrl,
             'created_at' => $now,
             'updated_at' => $now,
         ], $issues);

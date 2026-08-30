@@ -13,7 +13,7 @@ final class SecurityAlert
 
     public readonly ?string $advisoryUrl;
 
-    public readonly string $htmlUrl;
+    public readonly Url $htmlUrl;
 
     public function __construct(
         int $githubId,
@@ -32,7 +32,7 @@ final class SecurityAlert
 
         $this->githubId = $githubId;
         $this->advisoryUrl = Url::nullable($advisoryUrl);
-        $this->htmlUrl = Url::assertHttps($htmlUrl);
+        $this->htmlUrl = new Url($htmlUrl);
     }
 
     public function isDismissed(): bool

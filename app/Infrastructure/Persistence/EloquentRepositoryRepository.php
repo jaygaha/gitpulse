@@ -17,7 +17,7 @@ final class EloquentRepositoryRepository implements RepositoryRepositoryInterfac
                 'full_name' => $repository->fullName,
                 'owner' => $repository->owner,
                 'private' => $repository->private,
-                'html_url' => $repository->htmlUrl,
+                'html_url' => (string) $repository->htmlUrl,
                 'stale_threshold_days' => $repository->staleThresholdDays,
             ],
         );

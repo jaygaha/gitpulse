@@ -13,7 +13,7 @@ final class PullRequest
 
     public readonly int $number;
 
-    public readonly string $htmlUrl;
+    public readonly Url $htmlUrl;
 
     /** @param  array<string, mixed>  $checksStatus */
     public function __construct(
@@ -35,7 +35,7 @@ final class PullRequest
 
         $this->githubId = $githubId;
         $this->number = (new PRNumber($number))->value;
-        $this->htmlUrl = Url::assertHttps($htmlUrl);
+        $this->htmlUrl = new Url($htmlUrl);
     }
 
     public function isOpen(): bool

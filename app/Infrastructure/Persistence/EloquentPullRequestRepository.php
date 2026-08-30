@@ -28,7 +28,7 @@ final class EloquentPullRequestRepository implements PullRequestRepositoryInterf
                         'last_activity_at' => $pr->lastActivityAt,
                         'merged_at' => $pr->mergedAt,
                         'checks_status' => $pr->checksStatus ?: null,
-                        'html_url' => $pr->htmlUrl,
+                        'html_url' => (string) $pr->htmlUrl,
                     ],
                 );
             }
@@ -49,7 +49,7 @@ final class EloquentPullRequestRepository implements PullRequestRepositoryInterf
             'last_activity_at' => $pr->lastActivityAt,
             'merged_at' => $pr->mergedAt,
             'checks_status' => $pr->checksStatus ? json_encode($pr->checksStatus) : null,
-            'html_url' => $pr->htmlUrl,
+            'html_url' => (string) $pr->htmlUrl,
             'created_at' => $now,
             'updated_at' => $now,
         ], $pullRequests);

@@ -12,7 +12,7 @@ final class Repository
 {
     public readonly int $githubId;
 
-    public readonly string $htmlUrl;
+    public readonly Url $htmlUrl;
 
     public function __construct(
         int $githubId,
@@ -35,12 +35,6 @@ final class Repository
         }
 
         $this->githubId = $githubId;
-        $this->htmlUrl = Url::assertHttps($htmlUrl);
-    }
-
-    /** Explicit intent over raw property access. */
-    public function isPrivate(): bool
-    {
-        return $this->private;
+        $this->htmlUrl = new Url($htmlUrl);
     }
 }

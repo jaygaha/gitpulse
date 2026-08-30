@@ -47,7 +47,7 @@ it('persists and retrieves a repository by upsert semantics', function () {
     ));
 
     expect($updated->id)->toBe($stored->id)
-        ->and($updated->isPrivate())->toBeFalse();
+        ->and($updated->private)->toBeFalse();
 });
 
 it('archives repositories missing from the latest sync', function () {

@@ -67,7 +67,7 @@ it('constructs the core entities', function () {
 
     $job = ScanJob::start(ScanType::MANUAL);
 
-    expect($repo->isPrivate())->toBeTrue()
+    expect($repo->private)->toBeTrue()
         ->and($issue->isOpen())->toBeTrue()
         ->and($pr->headRef)->toBe('feature/graphql')
         ->and($alert = alertFixture())->severity->toBe(Severity::CRITICAL)
@@ -98,7 +98,7 @@ it('does not treat closed items as open and public repos as private', function (
     );
 
     expect($closedIssue->isOpen())->toBeFalse()
-        ->and($publicRepo->isPrivate())->toBeFalse();
+        ->and($publicRepo->private)->toBeFalse();
 });
 
 it('flags dismissed and fixed alerts independently', function () {

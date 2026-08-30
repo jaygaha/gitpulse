@@ -32,6 +32,6 @@ it('discovers repos from GitHub, upserts them, and archives missing ones', funct
 
     expect($count)->toBe(2)
         ->and($all[501]->fullName)->toBe('jaygaha/gitpulse')
-        ->and($all[502]->isPrivate())->toBeFalse()
+        ->and($all[502]->private)->toBeFalse()
         ->and($all[1]->archived)->toBeTrue(); // ghost archived
 });
