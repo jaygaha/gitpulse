@@ -54,6 +54,24 @@
             applyTheme();
         });
         document.addEventListener('livewire:navigated', applyTheme);
+
+        // keep active repo in view when arrow-navigating long filtered list — no Alpine $wire, no theme interference
+        const scrollActiveRepo = () => document.querySelector('#repoModalList .modal-item.active')?.scrollIntoView({block: 'nearest'});
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+            // Livewire roundtrip ~80ms, scroll after patch
+            setTimeout(scrollActiveRepo, 80);
+            setTimeout(scrollActiveRepo, 250);
+        });
+        document.addEventListener('livewire:updated', scrollActiveRepo);
+        // Livewire 3 hook fallback
+        document.addEventListener('livewire:init', () => {
+            if (window.Livewire?.hook) {
+                window.Livewire.hook('morph.updated', ({el}) => {
+                    if (el?.id === 'repoModalList' || el?.querySelector?.('#repoModalList')) scrollActiveRepo();
+                });
+            }
+        });
     })();
     </script>
 </body>
