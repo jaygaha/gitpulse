@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\ScanJob;
 
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use InvalidArgumentException;
 
@@ -37,7 +40,7 @@ final class ScanJob
 
     public static function start(ScanType $type, ?CarbonInterface $startedAt = null): self
     {
-        return new self(type: $type, status: ScanStatus::RUNNING, startedAt: $startedAt ?? now());
+        return new self(type: $type, status: ScanStatus::RUNNING, startedAt: $startedAt ?? CarbonImmutable::now('UTC'));
     }
 
     public function finish(
@@ -59,7 +62,7 @@ final class ScanJob
             type: $this->type,
             status: $status,
             startedAt: $this->startedAt,
-            finishedAt: $finishedAt ?? now(),
+            finishedAt: $finishedAt ?? CarbonImmutable::now('UTC'),
             reposScanned: $reposScanned,
             itemsFetched: $itemsFetched,
             error: $error,

@@ -78,9 +78,8 @@ final class Dashboard extends Component
         ])->layout('layouts.app');
     }
 
-    public function scanNow(): void
+    public function scanNow(ScanJobRepositoryInterface $scanJobs, RepositoryRepositoryInterface $repositories): void
     {
-        $scanJobs = app(ScanJobRepositoryInterface::class);
         $latest = $scanJobs->latest();
 
         if ($latest !== null && $latest->status->isActive()) {
@@ -89,7 +88,7 @@ final class Dashboard extends Component
             return;
         }
 
-        $active = collect(app(RepositoryRepositoryInterface::class)->all())
+        $active = collect($repositories->all())
             ->filter(fn ($r) => ! $r->archived)
             ->values();
 

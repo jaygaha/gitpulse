@@ -1,13 +1,13 @@
 <?php
 
 use App\Application\Handlers\SyncRepositoryDataHandler;
+use App\Domain\GitHub\GitHubGraphQLClientInterface;
+use App\Domain\GitHub\GitHubRestClientInterface;
 use App\Domain\Issue\Repositories\IssueRepositoryInterface;
 use App\Domain\PullRequest\Repositories\PullRequestRepositoryInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
 use App\Domain\Repository\Repository;
 use App\Domain\SecurityAlert\Repositories\SecurityAlertRepositoryInterface;
-use App\Infrastructure\GitHub\GitHubGraphQLClientInterface;
-use App\Infrastructure\GitHub\GitHubRestClientInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

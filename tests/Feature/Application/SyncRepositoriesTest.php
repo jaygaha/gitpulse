@@ -1,9 +1,9 @@
 <?php
 
 use App\Application\Handlers\SyncRepositoriesHandler;
+use App\Domain\GitHub\GitHubRestClientInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
 use App\Domain\Repository\Repository;
-use App\Infrastructure\GitHub\GitHubRestClientInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

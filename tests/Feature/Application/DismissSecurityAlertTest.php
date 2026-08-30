@@ -1,13 +1,13 @@
 <?php
 
 use App\Application\Handlers\DismissSecurityAlertHandler;
+use App\Domain\GitHub\GitHubRestClientInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
 use App\Domain\Repository\Repository;
 use App\Domain\SecurityAlert\AlertType;
 use App\Domain\SecurityAlert\Repositories\SecurityAlertRepositoryInterface;
 use App\Domain\SecurityAlert\SecurityAlert;
 use App\Domain\SecurityAlert\Severity;
-use App\Infrastructure\GitHub\GitHubRestClientInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

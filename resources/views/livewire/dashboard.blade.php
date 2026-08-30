@@ -63,7 +63,7 @@
             </div>
 
             @forelse ($rows as $row)
-                <a href="{{ route('repo.detail', $row['repo']->name) }}" wire:navigate class="repo-table-row repo-table-row--{{ $row['status'] }}" style="text-decoration: none; color: inherit;">
+                <a wire:key="repo-{{ $row['repo']->id }}" href="{{ route('repo.detail', $row['repo']->name) }}" wire:navigate class="repo-table-row repo-table-row--{{ $row['status'] }}" style="text-decoration: none; color: inherit;">
                     <div class="repo-table-cell repo-table-cell--status">
                         <span class="repo-status-dot repo-status-dot--{{ $row['status'] }}"></span>
                         <span class="repo-status-label">{{ $row['status'] }}</span>

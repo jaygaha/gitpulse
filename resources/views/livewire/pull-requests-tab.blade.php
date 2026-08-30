@@ -26,7 +26,7 @@
             </thead>
             <tbody>
                 @forelse ($paginator as $row)
-                    <tr style="border-bottom: 1px solid var(--border);">
+                    <tr wire:key="pr-{{ $row['pr']->githubId }}" style="border-bottom: 1px solid var(--border);">
                         <td class="px-2 py-2 font-mono"><a href="{{ $row['pr']->htmlUrl }}" target="_blank" style="color: var(--brand);">#{{ $row['pr']->number }}</a></td>
                         <td class="px-2 py-2">
                             <div class="font-medium">{{ $row['pr']->title }}</div>

@@ -1,12 +1,12 @@
 <?php
 
+use App\Domain\GitHub\GitHubRestClientInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
 use App\Domain\Repository\Repository;
 use App\Domain\SecurityAlert\AlertType;
 use App\Domain\SecurityAlert\Repositories\SecurityAlertRepositoryInterface;
 use App\Domain\SecurityAlert\SecurityAlert;
 use App\Domain\SecurityAlert\Severity;
-use App\Infrastructure\GitHub\GitHubRestClientInterface;
 use App\Livewire\SecurityAlertsTab;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;

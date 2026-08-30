@@ -36,7 +36,7 @@
             </thead>
             <tbody>
                 @forelse ($paginator as $alert)
-                    <tr style="border-bottom: 1px solid var(--border);">
+                    <tr wire:key="alert-{{ $alert->githubId }}-{{ $alert->type->value }}" style="border-bottom: 1px solid var(--border);">
                         <td class="px-2 py-2">
                             <span class="rounded px-1.5 py-0.5 text-[10px] font-semibold
                                 @if ($alert->severity->value === 'critical') bg-red-500/10 text-red-600

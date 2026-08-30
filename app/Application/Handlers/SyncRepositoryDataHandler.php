@@ -2,13 +2,13 @@
 
 namespace App\Application\Handlers;
 
+use App\Domain\GitHub\GitHubGraphQLClientInterface;
+use App\Domain\GitHub\GitHubRestClientInterface;
 use App\Domain\Issue\Repositories\IssueRepositoryInterface;
 use App\Domain\PullRequest\Repositories\PullRequestRepositoryInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
 use App\Domain\SecurityAlert\AlertType;
 use App\Domain\SecurityAlert\Repositories\SecurityAlertRepositoryInterface;
-use App\Infrastructure\GitHub\GitHubGraphQLClientInterface;
-use App\Infrastructure\GitHub\GitHubRestClientInterface;
 use App\Infrastructure\GitHub\Mappers\IssueMapper;
 use App\Infrastructure\GitHub\Mappers\PullRequestMapper;
 use App\Infrastructure\GitHub\Mappers\SecurityAlertMapper;

@@ -17,12 +17,12 @@ final class SettingsPanel extends Component
 
     public array $repoThresholds = [];
 
-    public function mount(SettingRepositoryInterface $settings): void
+    public function mount(SettingRepositoryInterface $settings, RepositoryRepositoryInterface $repositories): void
     {
         $this->staleThresholdDays = $settings->getInt('stale_threshold_days', 30);
         $this->githubToken = config('github.token') ? '••••••••'.substr((string) config('github.token'), -4) : null;
 
-        $repos = app(RepositoryRepositoryInterface::class)->all();
+        $repos = $repositories->all();
 
         foreach ($repos as $repo) {
             $this->repoThresholds[$repo->id] = $repo->staleThresholdDays;
