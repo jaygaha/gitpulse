@@ -19,11 +19,11 @@ function seedDashboardRepo(int $githubId = 501, ?int $thresholdOverride = null):
 {
     return app(RepositoryRepositoryInterface::class)->upsertFromEntity(new Repository(
         githubId: $githubId,
-        name: 'gitpulse',
-        fullName: 'jay/gitpulse',
+        name: "gitpulse-{$githubId}",
+        fullName: "jay/gitpulse-{$githubId}",
         owner: 'jay',
         private: true,
-        htmlUrl: "https://github.com/jay/gitpulse-$githubId",
+        htmlUrl: "https://github.com/jay/gitpulse-{$githubId}",
         staleThresholdDays: $thresholdOverride,
     ));
 }

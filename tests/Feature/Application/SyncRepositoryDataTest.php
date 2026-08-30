@@ -37,7 +37,7 @@ it('syncs issues, pull requests, and both alert types for one repository', funct
     $rest = Mockery::mock(GitHubRestClientInterface::class);
     $rest->shouldReceive('getPaginated')->once()->with('/repos/jay/gitpulse/issues', Mockery::type('array'))->andReturn($issues);
     $rest->shouldReceive('getPaginated')->once()->with('/repos/jay/gitpulse/pulls', Mockery::type('array'))->andReturn($pulls);
-    $rest->shouldReceive('getPaginated')->once()->with('/repos/jay/gitpulse/dependabot/alerts', Mockery::type('array'))->andReturn($dependabot);
+    $rest->shouldReceive('get')->once()->with('/repos/jay/gitpulse/dependabot/alerts', Mockery::type('array'))->andReturn($dependabot);
 
     $graphql = Mockery::mock(GitHubGraphQLClientInterface::class);
     $graphql->shouldReceive('query')->once()->andReturn($codeScanning);

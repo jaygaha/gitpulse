@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('repositories', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('github_id')->unique();
-            $table->string('name');
+            $table->string('name')->unique();
             $table->string('full_name')->index();
             $table->string('owner');
             $table->boolean('private')->default(false);
