@@ -16,4 +16,7 @@ interface IssueRepositoryInterface
 
     /** @return array<int, int> repository_id => open count */
     public function openCountsByRepository(): array;
+
+    /** @return array<int, list<Issue>> repository_id => list<Issue> (open only, ordered by last_activity_at desc) */
+    public function allOpenGrouped(): array;
 }

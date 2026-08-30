@@ -15,7 +15,9 @@
             document.body.classList.add('light');
         }
         applyTheme();
-        document.getElementById('themeToggle')?.addEventListener('click', () => {
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('#themeToggle');
+            if (!btn) return;
             document.body.classList.toggle('light');
             localStorage.setItem('light', document.body.classList.contains('light'));
             applyTheme();

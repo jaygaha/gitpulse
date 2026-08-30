@@ -1,4 +1,4 @@
-<div wire:poll.2s class="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+<div @if ($lastScan && $lastScan->status->value === 'running') wire:poll.5s.visible @endif class="rounded-lg border p-4" style="border-color: var(--border); background: var(--surface);">
     <div class="mb-2 flex items-center justify-between">
         <h3 class="text-xs font-semibold uppercase text-slate-500">Scan status</h3>
         <button wire:click="$refresh" class="text-xs text-slate-400 hover:text-slate-600">↻</button>

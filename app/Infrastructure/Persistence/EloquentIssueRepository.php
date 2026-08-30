@@ -10,20 +10,45 @@ final class EloquentIssueRepository implements IssueRepositoryInterface
 {
     public function upsertForRepository(int $repositoryId, array $issues): int
     {
-        foreach ($issues as $issue) {
-            IssueModel::updateOrCreate(
-                ['repository_id' => $repositoryId, 'github_id' => $issue->githubId],
-                [
-                    'number' => $issue->number,
-                    'title' => $issue->title,
-                    'state' => $issue->state,
-                    'labels' => $issue->labels,
-                    'assignee' => $issue->assignee,
-                    'last_activity_at' => $issue->lastActivityAt,
-                    'html_url' => $issue->htmlUrl,
-                ],
-            );
+        if ($issues === []) {
+            return 0;
         }
+
+        if (count($issues) < 20) {
+            foreach ($issues as $issue) {
+                IssueModel::updateOrCreate(
+                    ['repository_id' => $repositoryId, 'github_id' => $issue->githubId],
+                    [
+                        'number' => $issue->number,
+                        'title' => $issue->title,
+                        'state' => $issue->state,
+                        'labels' => $issue->labels,
+                        'assignee' => $issue->assignee,
+                        'last_activity_at' => $issue->lastActivityAt,
+                        'html_url' => $issue->htmlUrl,
+                    ],
+                );
+            }
+
+            return count($issues);
+        }
+
+        $now = now();
+        $rows = array_map(fn ($issue) => [
+            'repository_id' => $repositoryId,
+            'github_id' => $issue->githubId,
+            'number' => $issue->number,
+            'title' => $issue->title,
+            'state' => $issue->state,
+            'labels' => json_encode($issue->labels),
+            'assignee' => $issue->assignee,
+            'last_activity_at' => $issue->lastActivityAt,
+            'html_url' => $issue->htmlUrl,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ], $issues);
+
+        IssueModel::upsert($rows, ['repository_id', 'github_id'], ['number', 'title', 'state', 'labels', 'assignee', 'last_activity_at', 'html_url', 'updated_at']);
 
         return count($issues);
     }
@@ -58,6 +83,25 @@ final class EloquentIssueRepository implements IssueRepositoryInterface
             ->groupBy('repository_id')
             ->pluck('aggregate', 'repository_id')
             ->map(fn ($v) => (int) $v)
+            ->all();
+    }
+
+    public function allOpenGrouped(): array
+    {
+        return IssueModel::where('state', 'open')
+            ->orderByDesc('last_activity_at')
+            ->get()
+            ->groupBy('repository_id')
+            ->map(fn ($group) => $group->map(fn ($m) => new Issue(
+                githubId: $m->github_id,
+                number: $m->number,
+                title: $m->title,
+                state: $m->state,
+                labels: $m->labels ?? [],
+                assignee: $m->assignee,
+                lastActivityAt: $m->last_activity_at,
+                htmlUrl: $m->html_url,
+            ))->all())
             ->all();
     }
 }

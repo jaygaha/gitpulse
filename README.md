@@ -1,59 +1,72 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# GitPulse
 
 <p align="center">
 <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/badge/Laravel-13.x-red" alt="Laravel Version"></a>
+<a href="https://packagist.org/packages/pestphp/pest"><img src="https://img.shields.io/badge/Pest-4.x-82c91e" alt="Pest Version"></a>
+<a href="https://packagist.org/packages/livewire/livewire"><img src="https://img.shields.io/badge/Livewire-3.x-4e56a6" alt="Livewire Version"></a>
+<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="License"></a>
 </p>
 
-## About Laravel
+Personal GitHub observability dashboard: stale issues, stale pull requests, and security alerts (Dependabot + Code Scanning) across all your GitHub repositories — public and private.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Built with **Laravel 13**, **Livewire 3**, **Tailwind CSS 4**, **Pest**. DDD-style layering (`Domain` → `Application` → `Infrastructure` → `Livewire`).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Screenshots
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+![Dashboard](public/dashboard.png)
+![Repository Detail](public/detail.png)
 
-## Learning Laravel
+## Features (MVP)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- Repo discovery from your GitHub account (public + private), archived-repo tracking
+- Issues & PR sync with configurable staleness thresholds (global default + per-repo override)
+- Security alerts: Dependabot (REST) + Code Scanning (GraphQL), with GitHub-backed dismiss
+- Hourly scheduled scan + manual "Scan now" button, database queue, atomic progress tracking
+- Rate-limit-aware API clients; no test ever touches the network
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Requirements
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+- PHP 8.4 (Herd recommended)
+- Composer
+- Node.js ≥ 22 (only for building frontend assets)
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Setup
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env          # then set GITHUB_TOKEN (repo + security_events scopes)
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate
+npm install && npm run build  # needs Node.js on PATH
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Running
 
-## Contributing
+```bash
+php artisan serve                 # dashboard at http://127.0.0.1:8000
+php artisan queue:work            # process scan jobs
+php artisan schedule:work         # hourly scans (or system cron)
+php artisan scan:dispatch --sync  # manual full scan (sync)
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+First scan: run `php artisan scan:dispatch --sync` once so repositories are discovered before the UI has anything to show.
 
-## Code of Conduct
+### Configuration (.env)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Key | Purpose |
+|-----|---------|
+| `GITHUB_TOKEN` | Personal access token (needs `repo` + `security_events`) |
+| `GITHUB_PER_PAGE` | API page size (default 100 internally) |
+| `GITHUB_RATE_LIMIT_PAUSE` | Seconds to sleep when rate limit runs low |
 
-## Security Vulnerabilities
+Global staleness default lives in the `settings` table (`stale_threshold_days`, seeded to 30). Per-repo overrides via `repositories.stale_threshold_days`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Testing
 
-## License
+```bash
+php artisan test
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# GITPulse
+126 tests across Domain units, Application handlers/queries, Infrastructure persistence + fixture-replayed GitHub clients, and Livewire feature tests. No network access in tests.

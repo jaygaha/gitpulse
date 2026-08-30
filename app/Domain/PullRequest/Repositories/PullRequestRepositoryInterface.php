@@ -16,4 +16,7 @@ interface PullRequestRepositoryInterface
 
     /** @return array<int, int> repository_id => open count */
     public function openCountsByRepository(): array;
+
+    /** @return array<int, list<PullRequest>> repository_id => list<PullRequest> (open only, ordered by last_activity_at desc) */
+    public function allOpenGrouped(): array;
 }

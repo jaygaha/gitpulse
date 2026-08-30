@@ -1,4 +1,4 @@
-<div wire:poll.2s>
+<div>
     @if (session('status'))
         <div style="max-width: 900px; margin: 24px auto 0; padding: 0 24px;">
             <div style="background: var(--success); color: white; padding: 8px 12px; font-family: var(--font-mono); font-size: 12px;">{{ session('status') }}</div>

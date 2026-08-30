@@ -10,23 +10,51 @@ final class EloquentPullRequestRepository implements PullRequestRepositoryInterf
 {
     public function upsertForRepository(int $repositoryId, array $pullRequests): int
     {
-        foreach ($pullRequests as $pr) {
-            PullRequestModel::updateOrCreate(
-                ['repository_id' => $repositoryId, 'github_id' => $pr->githubId],
-                [
-                    'number' => $pr->number,
-                    'title' => $pr->title,
-                    'state' => $pr->state,
-                    'author' => $pr->author,
-                    'base_ref' => $pr->baseRef,
-                    'head_ref' => $pr->headRef,
-                    'last_activity_at' => $pr->lastActivityAt,
-                    'merged_at' => $pr->mergedAt,
-                    'checks_status' => $pr->checksStatus ?: null,
-                    'html_url' => $pr->htmlUrl,
-                ],
-            );
+        if ($pullRequests === []) {
+            return 0;
         }
+
+        if (count($pullRequests) < 20) {
+            foreach ($pullRequests as $pr) {
+                PullRequestModel::updateOrCreate(
+                    ['repository_id' => $repositoryId, 'github_id' => $pr->githubId],
+                    [
+                        'number' => $pr->number,
+                        'title' => $pr->title,
+                        'state' => $pr->state,
+                        'author' => $pr->author,
+                        'base_ref' => $pr->baseRef,
+                        'head_ref' => $pr->headRef,
+                        'last_activity_at' => $pr->lastActivityAt,
+                        'merged_at' => $pr->mergedAt,
+                        'checks_status' => $pr->checksStatus ?: null,
+                        'html_url' => $pr->htmlUrl,
+                    ],
+                );
+            }
+
+            return count($pullRequests);
+        }
+
+        $now = now();
+        $rows = array_map(fn ($pr) => [
+            'repository_id' => $repositoryId,
+            'github_id' => $pr->githubId,
+            'number' => $pr->number,
+            'title' => $pr->title,
+            'state' => $pr->state,
+            'author' => $pr->author,
+            'base_ref' => $pr->baseRef,
+            'head_ref' => $pr->headRef,
+            'last_activity_at' => $pr->lastActivityAt,
+            'merged_at' => $pr->mergedAt,
+            'checks_status' => $pr->checksStatus ? json_encode($pr->checksStatus) : null,
+            'html_url' => $pr->htmlUrl,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ], $pullRequests);
+
+        PullRequestModel::upsert($rows, ['repository_id', 'github_id'], ['number', 'title', 'state', 'author', 'base_ref', 'head_ref', 'last_activity_at', 'merged_at', 'checks_status', 'html_url', 'updated_at']);
 
         return count($pullRequests);
     }
@@ -64,6 +92,28 @@ final class EloquentPullRequestRepository implements PullRequestRepositoryInterf
             ->groupBy('repository_id')
             ->pluck('aggregate', 'repository_id')
             ->map(fn ($v) => (int) $v)
+            ->all();
+    }
+
+    public function allOpenGrouped(): array
+    {
+        return PullRequestModel::where('state', 'open')
+            ->orderByDesc('last_activity_at')
+            ->get()
+            ->groupBy('repository_id')
+            ->map(fn ($group) => $group->map(fn ($m) => new PullRequest(
+                githubId: $m->github_id,
+                number: $m->number,
+                title: $m->title,
+                state: $m->state,
+                author: $m->author,
+                baseRef: $m->base_ref ?? 'unknown',
+                headRef: $m->head_ref ?? 'unknown',
+                lastActivityAt: $m->last_activity_at,
+                checksStatus: $m->checks_status ?? [],
+                htmlUrl: $m->html_url,
+                mergedAt: $m->merged_at,
+            ))->all())
             ->all();
     }
 }

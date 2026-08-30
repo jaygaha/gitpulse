@@ -12,20 +12,46 @@ final class EloquentSecurityAlertRepository implements SecurityAlertRepositoryIn
 {
     public function upsertForRepository(int $repositoryId, AlertType $type, array $alerts): int
     {
-        foreach ($alerts as $alert) {
-            SecurityAlertModel::updateOrCreate(
-                ['repository_id' => $repositoryId, 'type' => $type->value, 'github_id' => $alert->githubId],
-                [
-                    'severity' => $alert->severity->value,
-                    'package_name' => $alert->packageName,
-                    'summary' => $alert->summary,
-                    'advisory_url' => $alert->advisoryUrl,
-                    'dismissed_at' => $alert->dismissedAt,
-                    'fixed_at' => $alert->fixedAt,
-                    'html_url' => $alert->htmlUrl,
-                ],
-            );
+        if ($alerts === []) {
+            return 0;
         }
+
+        if (count($alerts) < 20) {
+            foreach ($alerts as $alert) {
+                SecurityAlertModel::updateOrCreate(
+                    ['repository_id' => $repositoryId, 'type' => $type->value, 'github_id' => $alert->githubId],
+                    [
+                        'severity' => $alert->severity->value,
+                        'package_name' => $alert->packageName,
+                        'summary' => $alert->summary,
+                        'advisory_url' => $alert->advisoryUrl,
+                        'dismissed_at' => $alert->dismissedAt,
+                        'fixed_at' => $alert->fixedAt,
+                        'html_url' => $alert->htmlUrl,
+                    ],
+                );
+            }
+
+            return count($alerts);
+        }
+
+        $now = now();
+        $rows = array_map(fn ($alert) => [
+            'repository_id' => $repositoryId,
+            'type' => $type->value,
+            'github_id' => $alert->githubId,
+            'severity' => $alert->severity->value,
+            'package_name' => $alert->packageName,
+            'summary' => $alert->summary,
+            'advisory_url' => $alert->advisoryUrl,
+            'dismissed_at' => $alert->dismissedAt,
+            'fixed_at' => $alert->fixedAt,
+            'html_url' => $alert->htmlUrl,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ], $alerts);
+
+        SecurityAlertModel::upsert($rows, ['repository_id', 'type', 'github_id'], ['severity', 'package_name', 'summary', 'advisory_url', 'dismissed_at', 'fixed_at', 'html_url', 'updated_at']);
 
         return count($alerts);
     }
