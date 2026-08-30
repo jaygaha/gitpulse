@@ -57,9 +57,15 @@ final class Topbar extends Component
         $this->activeIndex = max(0, $this->activeIndex - 1);
     }
 
-    public function moveDown(int $max): void
+    public function moveDown(RepositoryRepositoryInterface $repositories): void
     {
-        $this->activeIndex = min($max - 1, $this->activeIndex + 1);
+        $repos = collect($repositories->all())
+            ->filter(fn ($r) => ! $r->archived)
+            ->when($this->search !== '', fn ($c) => $c->filter(fn ($r) => str_contains(strtolower($r->fullName), strtolower($this->search)) || str_contains(strtolower($r->name), strtolower($this->search))))
+            ->values();
+
+        $max = $repos->count();
+        $this->activeIndex = $max === 0 ? 0 : min($max - 1, $this->activeIndex + 1);
     }
 
     public function selectActive(RepositoryRepositoryInterface $repositories): void
