@@ -32,7 +32,7 @@ final class Issue
 
         $this->githubId = $githubId;
         $this->number = (new IssueNumber($number))->value;
-        $this->htmlUrl = (new Url($htmlUrl))->value;
+        $this->htmlUrl = Url::assertHttps($htmlUrl);
     }
 
     public function isOpen(): bool

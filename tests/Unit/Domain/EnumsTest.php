@@ -34,18 +34,13 @@ it('maps severity strings from the APIs ignoring case', function (string $input,
     ['critical', Severity::CRITICAL],
     ['CRITICAL', Severity::CRITICAL],
     ['high', Severity::HIGH],
-    ['error', Severity::HIGH],
     ['medium', Severity::MEDIUM],
-    ['moderate', Severity::MEDIUM],
-    ['warning', Severity::MEDIUM],
     ['low', Severity::LOW],
-    ['note', Severity::LOW],
-    ['none', Severity::LOW],
 ]);
 
 it('rejects unknown severity values instead of failing open', function (string $input) {
     Severity::fromString($input);
-})->throws(InvalidArgumentException::class)->with(['unknown-thing', '', 'sev:9']);
+})->throws(InvalidArgumentException::class)->with(['unknown-thing', '', 'sev:9', 'error', 'warning', 'note']);
 
 it('models the scan lifecycle', function () {
     expect(ScanType::fromString('manual'))->toBe(ScanType::MANUAL)

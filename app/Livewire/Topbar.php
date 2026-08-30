@@ -23,7 +23,7 @@ final class Topbar extends Component
             ->when($this->search !== '', fn ($c) => $c->filter(fn ($r) => str_contains(strtolower($r->fullName), strtolower($this->search)) || str_contains(strtolower($r->name), strtolower($this->search))))
             ->values();
 
-        // Uniform route: /repo/{slug} for detail, fallback to query param for dashboard
+        // Single-user app: {slug} is repo name (unique), not owner/name. Use fullName only for display.
         $slug = request()->route('slug') ?? request()->query('repo');
         $current = $slug ? $repos->firstWhere('name', $slug) : null;
         $current ??= $repos->first();

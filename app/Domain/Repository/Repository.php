@@ -35,7 +35,7 @@ final class Repository
         }
 
         $this->githubId = $githubId;
-        $this->htmlUrl = (new Url($htmlUrl))->value;
+        $this->htmlUrl = Url::assertHttps($htmlUrl);
     }
 
     /** Explicit intent over raw property access. */

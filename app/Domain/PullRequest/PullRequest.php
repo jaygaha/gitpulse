@@ -35,7 +35,7 @@ final class PullRequest
 
         $this->githubId = $githubId;
         $this->number = (new PRNumber($number))->value;
-        $this->htmlUrl = (new Url($htmlUrl))->value;
+        $this->htmlUrl = Url::assertHttps($htmlUrl);
     }
 
     public function isOpen(): bool

@@ -14,7 +14,7 @@ final class SecurityAlertMapper
         return new SecurityAlert(
             githubId: $data['number'],
             type: AlertType::DEPENDABOT,
-            severity: Severity::fromString($data['security_advisory']['severity'] ?? 'low'),
+            severity: Severity::fromString(self::normalizeSeverity($data['security_advisory']['severity'] ?? 'low')),
             packageName: $data['dependency']['package']['name'] ?? null,
             summary: $data['security_advisory']['summary'] ?? null,
             advisoryUrl: $data['security_advisory']['html_url']
@@ -32,7 +32,7 @@ final class SecurityAlertMapper
         return new SecurityAlert(
             githubId: $node['number'],
             type: AlertType::CODE_SCANNING,
-            severity: Severity::fromString(strtolower($node['securitySeverityLevel'] ?? 'note')),
+            severity: Severity::fromString(self::normalizeSeverity(strtolower($node['securitySeverityLevel'] ?? 'note'))),
             packageName: null,
             summary: $node['description'] ?? $node['rule']['description'] ?? null,
             advisoryUrl: null,
@@ -40,5 +40,15 @@ final class SecurityAlertMapper
             fixedAt: isset($node['fixedAt']) ? Carbon::parse($node['fixedAt']) : null,
             htmlUrl: $node['url'],
         );
+    }
+
+    private static function normalizeSeverity(string $value): string
+    {
+        return match (strtolower(trim($value))) {
+            'error' => 'high',
+            'warning', 'moderate' => 'medium',
+            'note', 'none' => 'low',
+            default => strtolower(trim($value)),
+        };
     }
 }

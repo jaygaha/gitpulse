@@ -32,7 +32,7 @@ final class SecurityAlert
 
         $this->githubId = $githubId;
         $this->advisoryUrl = Url::nullable($advisoryUrl);
-        $this->htmlUrl = (new Url($htmlUrl))->value;
+        $this->htmlUrl = Url::assertHttps($htmlUrl);
     }
 
     public function isDismissed(): bool
