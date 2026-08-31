@@ -32,14 +32,15 @@ Built with **Laravel 13**, **Livewire 3**, **Tailwind CSS 4**, **Pest**. DDD-sty
 - PHP 8.4 (Herd recommended)
 - Composer
 - Node.js ≥ 22 (only for building frontend assets)
+- GitHub PAT with `repo` + `security_events` scopes — create at <https://github.com/settings/tokens/new?scopes=repo,security_events> or `gh auth login`
 
 ## Setup
 
 ```bash
 composer install
-cp .env.example .env          # then set GITHUB_TOKEN (repo + security_events scopes)
+cp .env.example .env          # then set GITHUB_TOKEN=ghp_xxx in .env
 php artisan key:generate
-touch database/database.sqlite
+mkdir -p database && touch database/database.sqlite
 php artisan migrate
 npm install && npm run build  # needs Node.js on PATH
 ```
@@ -59,11 +60,20 @@ First scan: run `php artisan scan:dispatch --sync` once so repositories are disc
 
 | Key | Purpose |
 |-----|---------|
-| `GITHUB_TOKEN` | Personal access token (needs `repo` + `security_events`) |
+| `GITHUB_TOKEN` | Personal access token (needs `repo` + `security_events`) — required |
 | `GITHUB_PER_PAGE` | API page size (default 100 internally) |
 | `GITHUB_RATE_LIMIT_PAUSE` | Seconds to sleep when rate limit runs low |
+| `GITHUB_RATE_LIMIT_RETRY_CAP` | Max seconds to honor `Retry-After` |
+| `GITPULSE_SCAN_SCHEDULE` | Scheduler interval (`hourly` default) |
 
 Global staleness default lives in the `settings` table (`stale_threshold_days`, seeded to 30). Per-repo overrides via `repositories.stale_threshold_days`.
+
+### Troubleshooting
+
+- `GITHUB_TOKEN not configured` → `cp .env.example .env` then set `GITHUB_TOKEN=ghp_xxx`
+- `Vite manifest not found` → `npm install && npm run build` (or `npm run dev` for HMR)
+- `No scans yet` on dashboard → `php artisan scan:dispatch --sync` to seed `repositories` before UI has data
+- `SQLSTATE[HY000] unable to open database` → `mkdir -p database && touch database/database.sqlite && php artisan migrate`
 
 ## Testing
 
