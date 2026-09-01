@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "jaygaha/gitpulse",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Personal GitHub observability dashboard — stale issues, stale PRs and security alerts across all your repositories. Laravel 13 + Livewire 3 + Pest.",
+    "keywords": ["laravel", "livewire", "github", "dashboard", "stale", "dependabot", "code-scanning"],
     "license": "MIT",
     "require": {
         "php": "^8.3",

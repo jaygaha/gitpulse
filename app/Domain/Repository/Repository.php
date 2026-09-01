@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Repository;
 
 use App\Domain\Shared\Url;
@@ -10,7 +12,7 @@ final class Repository
 {
     public readonly int $githubId;
 
-    public readonly string $htmlUrl;
+    public readonly Url $htmlUrl;
 
     public function __construct(
         int $githubId,
@@ -28,16 +30,11 @@ final class Repository
             throw new InvalidArgumentException("Repository githubId must be positive, got {$githubId}.");
         }
 
-        if ($staleThresholdDays !== null && $staleThresholdDays <= 0) {
-            throw new InvalidArgumentException("Staleness override must be positive when set, got {$staleThresholdDays}.");
+        if ($staleThresholdDays !== null) {
+            new StalenessThreshold($staleThresholdDays);
         }
 
         $this->githubId = $githubId;
-        $this->htmlUrl = (new Url($htmlUrl))->value;
-    }
-
-    public function isPrivate(): bool
-    {
-        return $this->private;
+        $this->htmlUrl = new Url($htmlUrl);
     }
 }

@@ -12,11 +12,7 @@ final class EloquentScanJobRepository implements ScanJobRepositoryInterface
 {
     public function startLatest(ScanType $type): ScanJob
     {
-        $model = ScanJobModel::query()->firstOrNew([]);
-
-        // validated by ScanType enum before fill
-
-        $model->fill([
+        $model = ScanJobModel::create([
             'type' => $type->value,
             'status' => ScanStatus::RUNNING->value,
             'started_at' => now(),
@@ -24,7 +20,7 @@ final class EloquentScanJobRepository implements ScanJobRepositoryInterface
             'repos_scanned' => 0,
             'items_fetched' => 0,
             'error' => null,
-        ])->save();
+        ]);
 
         return new ScanJob(
             type: ScanType::from($model->type),
@@ -35,7 +31,9 @@ final class EloquentScanJobRepository implements ScanJobRepositoryInterface
 
     public function finishLatest(ScanStatus $status, int $reposScanned, int $itemsFetched, ?string $error = null): void
     {
-        ScanJobModel::query()->firstOrFail()->update([
+        $latest = ScanJobModel::query()->latest('id')->firstOrFail();
+
+        $latest->update([
             'status' => $status->value,
             'finished_at' => now(),
             'repos_scanned' => $reposScanned,

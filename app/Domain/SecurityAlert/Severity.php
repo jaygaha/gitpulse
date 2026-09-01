@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\SecurityAlert;
 
 enum Severity: string
@@ -24,14 +26,13 @@ enum Severity: string
         };
     }
 
-    /** Maps GitHub severity vocab (error/warning/note/none/moderate), case-insensitive. Throws on unknown values. */
     public static function fromString(string $value): self
     {
         return match (strtolower(trim($value))) {
             'critical' => self::CRITICAL,
-            'high', 'error' => self::HIGH,
-            'medium', 'moderate', 'warning' => self::MEDIUM,
-            'low', 'note', 'none' => self::LOW,
+            'high' => self::HIGH,
+            'medium' => self::MEDIUM,
+            'low' => self::LOW,
             default => throw new \InvalidArgumentException("Unknown severity: {$value}."),
         };
     }

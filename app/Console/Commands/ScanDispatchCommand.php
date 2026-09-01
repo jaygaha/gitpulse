@@ -25,6 +25,7 @@ final class ScanDispatchCommand extends Command
         SyncRepositoryDataHandler $syncData,
         ScanJobRepositoryInterface $scanJobs,
         SettingRepositoryInterface $settings,
+        RepositoryRepositoryInterface $repositories,
     ): int {
         if (! config('github.token')) {
             $this->error('GITHUB_TOKEN not configured.');
@@ -39,7 +40,7 @@ final class ScanDispatchCommand extends Command
             $discovered = $syncRepos();
             $this->info("Discovered {$discovered} repositories upstream.");
 
-            $repositories = collect(app(RepositoryRepositoryInterface::class)->all())
+            $repositories = collect($repositories->all())
                 ->filter(fn ($r) => ! $r->archived)
                 ->when(! $this->option('force'), fn ($c) => $c->filter(function ($repo) use ($settings) {
                     $global = $settings->getInt('stale_threshold_days', 30);

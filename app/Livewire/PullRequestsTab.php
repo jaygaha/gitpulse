@@ -1,53 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
 use App\Application\Queries\GetDashboardQuery;
+use App\Livewire\Concerns\HasStaleFilters;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 final class PullRequestsTab extends Component
 {
-    use WithPagination;
+    use HasStaleFilters;
 
     public int $repositoryId;
-
-    public string $search = '';
-
-    public string $stateFilter = 'all';
-
-    public string $sortField = 'stale';
-
-    public string $sortDir = 'desc';
-
-    public int $perPage = 25;
 
     public function mount(int $repositoryId): void
     {
         $this->repositoryId = $repositoryId;
-    }
-
-    public function updatingSearch(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatingStateFilter(): void
-    {
-        $this->resetPage();
-    }
-
-    public function sortBy(string $field): void
-    {
-        if ($this->sortField === $field) {
-            $this->sortDir = $this->sortDir === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortField = $field;
-            $this->sortDir = $field === 'number' ? 'asc' : 'desc';
-        }
     }
 
     public function render(GetDashboardQuery $query): View

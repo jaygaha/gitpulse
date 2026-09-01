@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Services;
 
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 
 /**
@@ -21,13 +24,9 @@ final class StalenessCalculator
             return false;
         }
 
-        $timezone = date_default_timezone_get();
-        $cutoff = ($now ?? now())
-            ->timezone($timezone)
-            ->copy()
-            ->subDays($threshold)
-            ->startOfDay();
+        $now = $now ?? CarbonImmutable::now('UTC');
+        $cutoff = $now->copy()->subDays($threshold)->startOfDay();
 
-        return $lastActivity->copy()->timezone($timezone)->startOfDay()->lt($cutoff);
+        return $lastActivity->copy()->startOfDay()->lt($cutoff);
     }
 }

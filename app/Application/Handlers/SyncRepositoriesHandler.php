@@ -2,8 +2,8 @@
 
 namespace App\Application\Handlers;
 
+use App\Domain\GitHub\GitHubRestClientInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
-use App\Infrastructure\GitHub\GitHubRestClientInterface;
 use App\Infrastructure\GitHub\Mappers\RepositoryMapper;
 
 final class SyncRepositoriesHandler

@@ -1,4 +1,4 @@
-<div wire:poll.2s>
+<div>
     @if (session('status'))
         <div style="max-width: 900px; margin: 24px auto 0; padding: 0 24px;">
             <div style="background: var(--success); color: white; padding: 8px 12px; font-family: var(--font-mono); font-size: 12px;">{{ session('status') }}</div>
@@ -63,7 +63,7 @@
             </div>
 
             @forelse ($rows as $row)
-                <a href="{{ route('repo.detail', $row['repo']->name) }}" wire:navigate class="repo-table-row repo-table-row--{{ $row['status'] }}" style="text-decoration: none; color: inherit;">
+                <a wire:key="repo-{{ $row['repo']->id }}" href="{{ route('repo.detail', $row['repo']->name) }}" wire:navigate class="repo-table-row repo-table-row--{{ $row['status'] }}" style="text-decoration: none; color: inherit;">
                     <div class="repo-table-cell repo-table-cell--status">
                         <span class="repo-status-dot repo-status-dot--{{ $row['status'] }}"></span>
                         <span class="repo-status-label">{{ $row['status'] }}</span>

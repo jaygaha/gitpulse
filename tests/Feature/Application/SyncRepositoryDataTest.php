@@ -1,13 +1,13 @@
 <?php
 
 use App\Application\Handlers\SyncRepositoryDataHandler;
+use App\Domain\GitHub\GitHubGraphQLClientInterface;
+use App\Domain\GitHub\GitHubRestClientInterface;
 use App\Domain\Issue\Repositories\IssueRepositoryInterface;
 use App\Domain\PullRequest\Repositories\PullRequestRepositoryInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
 use App\Domain\Repository\Repository;
 use App\Domain\SecurityAlert\Repositories\SecurityAlertRepositoryInterface;
-use App\Infrastructure\GitHub\GitHubGraphQLClientInterface;
-use App\Infrastructure\GitHub\GitHubRestClientInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -37,10 +37,17 @@ it('syncs issues, pull requests, and both alert types for one repository', funct
     $rest = Mockery::mock(GitHubRestClientInterface::class);
     $rest->shouldReceive('getPaginated')->once()->with('/repos/jay/gitpulse/issues', Mockery::type('array'))->andReturn($issues);
     $rest->shouldReceive('getPaginated')->once()->with('/repos/jay/gitpulse/pulls', Mockery::type('array'))->andReturn($pulls);
-    $rest->shouldReceive('get')->once()->with('/repos/jay/gitpulse/dependabot/alerts', Mockery::type('array'))->andReturn($dependabot);
+    $rest->shouldReceive('getPaginated')->once()->with('/repos/jay/gitpulse/dependabot/alerts', Mockery::type('array'))->andReturn($dependabot);
 
     $graphql = Mockery::mock(GitHubGraphQLClientInterface::class);
-    $graphql->shouldReceive('query')->once()->andReturn($codeScanning);
+    $graphql->shouldReceive('query')->once()->with(Mockery::type('string'), Mockery::hasKey('after'))->andReturn([
+        'repository' => [
+            'codeScanningAlerts' => [
+                'nodes' => $codeScanning['repository']['codeScanningAlerts']['nodes'],
+                'pageInfo' => ['hasNextPage' => false, 'endCursor' => null],
+            ],
+        ],
+    ]);
 
     $handler = new SyncRepositoryDataHandler(
         $rest,

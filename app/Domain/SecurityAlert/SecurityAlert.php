@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\SecurityAlert;
 
 use App\Domain\Shared\Url;
@@ -11,7 +13,7 @@ final class SecurityAlert
 
     public readonly ?string $advisoryUrl;
 
-    public readonly string $htmlUrl;
+    public readonly Url $htmlUrl;
 
     public function __construct(
         int $githubId,
@@ -30,7 +32,7 @@ final class SecurityAlert
 
         $this->githubId = $githubId;
         $this->advisoryUrl = Url::nullable($advisoryUrl);
-        $this->htmlUrl = (new Url($htmlUrl))->value;
+        $this->htmlUrl = new Url($htmlUrl);
     }
 
     public function isDismissed(): bool

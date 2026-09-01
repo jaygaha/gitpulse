@@ -26,14 +26,14 @@
             </thead>
             <tbody>
                 @forelse ($paginator as $row)
-                    <tr style="border-bottom: 1px solid var(--border);">
+                    <tr wire:key="pr-{{ $row['pr']->githubId }}" style="border-bottom: 1px solid var(--border);">
                         <td class="px-2 py-2 font-mono"><a href="{{ $row['pr']->htmlUrl }}" target="_blank" style="color: var(--brand);">#{{ $row['pr']->number }}</a></td>
                         <td class="px-2 py-2">
                             <div class="font-medium">{{ $row['pr']->title }}</div>
                             <div class="font-mono text-[10px]" style="color: var(--text-secondary);">{{ $row['pr']->baseRef }} ← {{ $row['pr']->headRef }}</div>
                         </td>
                         <td class="px-2 py-2">{{ $row['pr']->author ?? '—' }}</td>
-                        <td class="px-2 py-2"><span class="rounded px-1.5 py-0.5 text-[10px] {{ $row['pr']->state === 'open' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-slate-500/10 text-slate-500' }}">{{ $row['pr']->state }}</span></td>
+                        <td class="px-2 py-2"><span class="rounded px-1.5 py-0.5 text-[10px]" style="{{ $row['pr']->state === 'open' ? 'background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid var(--success);' : 'background: var(--elevated); color: var(--text-secondary); border: 1px solid var(--border);' }}">{{ $row['pr']->state }}</span></td>
                         <td class="px-2 py-2">
                             @if ($row['isStale'] && $row['pr']->isOpen())
                                 <span class="rounded px-1.5 py-0.5 text-[10px] font-semibold" style="background: var(--warning-dim); color: var(--warning); border: 1px solid var(--warning);">stale</span>

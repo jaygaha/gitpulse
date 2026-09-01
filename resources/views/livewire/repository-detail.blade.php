@@ -7,7 +7,7 @@
             </div>
             <div class="repo-header-description">Synced from GitHub · {{ $repository->htmlUrl }}</div>
             <div class="repo-header-meta">
-                <span class="repo-lang"><span class="repo-lang-dot" style="background-color: #f59e0b;"></span> {{ $repository->isPrivate() ? 'Private' : 'Public' }}</span>
+                <span class="repo-lang"><span class="repo-lang-dot" style="background-color: #f59e0b;"></span> {{ $repository->private ? 'Private' : 'Public' }}</span>
                 <span class="repo-meta-sep">·</span>
                 <span class="repo-meta-item">{{ $totalIssues }} issues</span>
                 <span class="repo-meta-sep">·</span>

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Issue;
 
 use App\Domain\Shared\Url;
@@ -11,7 +13,7 @@ final class Issue
 
     public readonly int $number;
 
-    public readonly string $htmlUrl;
+    public readonly Url $htmlUrl;
 
     /** @param  list<string>  $labels */
     public function __construct(
@@ -30,7 +32,7 @@ final class Issue
 
         $this->githubId = $githubId;
         $this->number = (new IssueNumber($number))->value;
-        $this->htmlUrl = (new Url($htmlUrl))->value;
+        $this->htmlUrl = new Url($htmlUrl);
     }
 
     public function isOpen(): bool

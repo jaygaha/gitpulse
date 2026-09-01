@@ -19,8 +19,8 @@ it('maps a repository payload', function () use ($repos) {
     expect($repo->githubId)->toBe(501)
         ->and($repo->fullName)->toBe('jaygaha/gitpulse')
         ->and($repo->owner)->toBe('jaygaha')
-        ->and($repo->isPrivate())->toBeTrue()
-        ->and($repo->htmlUrl)->toBe('https://github.com/jaygaha/gitpulse');
+        ->and($repo->private)->toBeTrue()
+        ->and((string) $repo->htmlUrl)->toBe('https://github.com/jaygaha/gitpulse');
 });
 
 it('maps an issue payload including label names and nullable assignee', function () use ($issues) {

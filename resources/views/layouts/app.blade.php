@@ -4,7 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'GitPulse') }}</title>
+    <title>{{ config('app.name', 'GitPulse') }} — GitHub observability dashboard</title>
+    <meta name="description" content="Personal GitHub observability dashboard — stale issues, stale pull requests, Dependabot + Code Scanning alerts. Built with Laravel 13 + Livewire 3.">
+    <meta name="theme-color" content="#0a0a0f">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="GitPulse — GitHub observability dashboard">
+    <meta property="og:description" content="Track stale issues, stale PRs and security alerts across all your GitHub repositories — public and private.">
+    <meta property="og:image" content="{{ asset('images/git_pulse_logo.png') }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GitPulse">
+    <meta name="twitter:description" content="Stale issues, stale PRs and security alerts for your GitHub — Laravel 13 + Livewire 3.">
+    <meta name="twitter:image" content="{{ asset('images/git_pulse_logo.png') }}">
+    <link rel="icon" href="{{ asset('images/logo.svg') }}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ asset('images/git_pulse_logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -17,5 +30,49 @@
         {{ $slot }}
     </div>
     @livewireScripts
+    <script>
+    (() => {
+        const applyTheme = () => {
+            const isLight = document.body.classList.contains('light');
+            const moon = document.getElementById('themeIconMoon');
+            const sun = document.getElementById('themeIconSun');
+            if (moon && sun) {
+                moon.style.display = isLight ? 'none' : 'block';
+                sun.style.display = isLight ? 'block' : 'none';
+            }
+        };
+        const stored = localStorage.getItem('light');
+        if (stored === 'true' || (stored === null && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+            document.body.classList.add('light');
+        }
+        applyTheme();
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('#themeToggle');
+            if (!btn) return;
+            document.body.classList.toggle('light');
+            localStorage.setItem('light', document.body.classList.contains('light'));
+            applyTheme();
+        });
+        document.addEventListener('livewire:navigated', applyTheme);
+
+        // keep active repo in view when arrow-navigating long filtered list — no Alpine $wire, no theme interference
+        const scrollActiveRepo = () => document.querySelector('#repoModalList .modal-item.active')?.scrollIntoView({block: 'nearest'});
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+            // Livewire roundtrip ~80ms, scroll after patch
+            setTimeout(scrollActiveRepo, 80);
+            setTimeout(scrollActiveRepo, 250);
+        });
+        document.addEventListener('livewire:updated', scrollActiveRepo);
+        // Livewire 3 hook fallback
+        document.addEventListener('livewire:init', () => {
+            if (window.Livewire?.hook) {
+                window.Livewire.hook('morph.updated', ({el}) => {
+                    if (el?.id === 'repoModalList' || el?.querySelector?.('#repoModalList')) scrollActiveRepo();
+                });
+            }
+        });
+    })();
+    </script>
 </body>
 </html>

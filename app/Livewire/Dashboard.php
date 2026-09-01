@@ -3,12 +3,9 @@
 namespace App\Livewire;
 
 use App\Application\Queries\GetDashboardQuery;
-use App\Domain\Issue\Repositories\IssueRepositoryInterface;
-use App\Domain\PullRequest\Repositories\PullRequestRepositoryInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
 use App\Domain\ScanJob\Repositories\ScanJobRepositoryInterface;
 use App\Domain\ScanJob\ScanType;
-use App\Domain\SecurityAlert\Repositories\SecurityAlertRepositoryInterface;
 use App\Jobs\ScanRepositoryJob;
 use App\Models\ScanJob;
 use Illuminate\Contracts\View\View;
@@ -18,22 +15,17 @@ final class Dashboard extends Component
 {
     public function render(
         RepositoryRepositoryInterface $repositories,
-        IssueRepositoryInterface $issues,
-        PullRequestRepositoryInterface $pullRequests,
-        SecurityAlertRepositoryInterface $alerts,
         GetDashboardQuery $dashboardQuery,
     ): View {
         $repos = collect($repositories->all())->filter(fn ($r) => ! $r->archived)->values();
 
-        $rows = $repos->map(function ($repo) use ($issues, $pullRequests, $alerts, $dashboardQuery) {
-            $issueCount = $issues->countOpenForRepository($repo->id);
-            $prCount = $pullRequests->countOpenForRepository($repo->id);
-            $openAlerts = $alerts->openForRepository($repo->id);
-            $critical = collect($openAlerts)->filter(fn ($a) => $a->severity->value === 'critical')->count();
-            $warning = collect($openAlerts)->filter(fn ($a) => in_array($a->severity->value, ['high', 'medium']))->count();
+        $baseRows = $dashboardQuery->portfolioRows();
 
-            $staleIssues = collect($dashboardQuery->issuesForRepository($repo->id))->filter(fn ($r) => $r['isStale'] && $r['issue']->isOpen())->count();
-            $stalePrs = collect($dashboardQuery->pullRequestsForRepository($repo->id))->filter(fn ($r) => $r['isStale'] && $r['pr']->isOpen())->count();
+        $rows = collect($baseRows)->map(function ($row) {
+            $critical = $row['critical'];
+            $warning = $row['warning'];
+            $staleIssues = $row['staleIssues'];
+            $stalePrs = $row['stalePrs'];
 
             $status = 'healthy';
             if ($critical > 0) {
@@ -43,11 +35,11 @@ final class Dashboard extends Component
             }
 
             return [
-                'repo' => $repo,
+                'repo' => $row['repo'],
                 'status' => $status,
-                'issues' => $issueCount,
-                'prs' => $prCount,
-                'alerts' => $openAlerts,
+                'issues' => $row['issues'],
+                'prs' => $row['prs'],
+                'alerts' => [],
                 'critical' => $critical,
                 'warning' => $warning,
                 'staleIssues' => $staleIssues,
@@ -86,9 +78,8 @@ final class Dashboard extends Component
         ])->layout('layouts.app');
     }
 
-    public function scanNow(): void
+    public function scanNow(ScanJobRepositoryInterface $scanJobs, RepositoryRepositoryInterface $repositories): void
     {
-        $scanJobs = app(ScanJobRepositoryInterface::class);
         $latest = $scanJobs->latest();
 
         if ($latest !== null && $latest->status->isActive()) {
@@ -97,7 +88,7 @@ final class Dashboard extends Component
             return;
         }
 
-        $active = collect(app(RepositoryRepositoryInterface::class)->all())
+        $active = collect($repositories->all())
             ->filter(fn ($r) => ! $r->archived)
             ->values();
 

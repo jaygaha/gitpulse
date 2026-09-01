@@ -1,9 +1,9 @@
 <?php
 
 use App\Application\Handlers\SyncRepositoriesHandler;
+use App\Domain\GitHub\GitHubRestClientInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
 use App\Domain\Repository\Repository;
-use App\Infrastructure\GitHub\GitHubRestClientInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -32,6 +32,6 @@ it('discovers repos from GitHub, upserts them, and archives missing ones', funct
 
     expect($count)->toBe(2)
         ->and($all[501]->fullName)->toBe('jaygaha/gitpulse')
-        ->and($all[502]->isPrivate())->toBeFalse()
+        ->and($all[502]->private)->toBeFalse()
         ->and($all[1]->archived)->toBeTrue(); // ghost archived
 });

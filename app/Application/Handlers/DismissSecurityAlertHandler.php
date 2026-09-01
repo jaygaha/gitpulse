@@ -2,10 +2,10 @@
 
 namespace App\Application\Handlers;
 
+use App\Domain\GitHub\GitHubRestClientInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
 use App\Domain\SecurityAlert\AlertType;
 use App\Domain\SecurityAlert\Repositories\SecurityAlertRepositoryInterface;
-use App\Infrastructure\GitHub\GitHubRestClientInterface;
 
 final class DismissSecurityAlertHandler
 {

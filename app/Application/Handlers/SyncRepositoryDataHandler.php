@@ -2,13 +2,13 @@
 
 namespace App\Application\Handlers;
 
+use App\Domain\GitHub\GitHubGraphQLClientInterface;
+use App\Domain\GitHub\GitHubRestClientInterface;
 use App\Domain\Issue\Repositories\IssueRepositoryInterface;
 use App\Domain\PullRequest\Repositories\PullRequestRepositoryInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
 use App\Domain\SecurityAlert\AlertType;
 use App\Domain\SecurityAlert\Repositories\SecurityAlertRepositoryInterface;
-use App\Infrastructure\GitHub\GitHubGraphQLClientInterface;
-use App\Infrastructure\GitHub\GitHubRestClientInterface;
 use App\Infrastructure\GitHub\Mappers\IssueMapper;
 use App\Infrastructure\GitHub\Mappers\PullRequestMapper;
 use App\Infrastructure\GitHub\Mappers\SecurityAlertMapper;
@@ -16,15 +16,19 @@ use App\Infrastructure\GitHub\Mappers\SecurityAlertMapper;
 final class SyncRepositoryDataHandler
 {
     private const CODE_SCANNING_QUERY = <<<'GRAPHQL'
-        query($owner: String!, $name: String!) {
+        query($owner: String!, $name: String!, $after: String) {
             repository(owner: $owner, name: $name) {
-                codeScanningAlerts(first: 100, states: [OPEN, DISMISSED, FIXED]) {
+                codeScanningAlerts(first: 100, states: [OPEN, DISMISSED, FIXED], after: $after) {
                     nodes {
                         number
                         state
                         securitySeverityLevel
                         description
                         url
+                    }
+                    pageInfo {
+                        hasNextPage
+                        endCursor
                     }
                 }
             }
@@ -92,8 +96,7 @@ final class SyncRepositoryDataHandler
     private function safeDependabot(string $fullName): array
     {
         try {
-            // Dependabot endpoint does not support `page` pagination (see GitHub docs)
-            return $this->github->get("/repos/{$fullName}/dependabot/alerts", ['state' => 'open']);
+            return $this->github->getPaginated("/repos/{$fullName}/dependabot/alerts", ['state' => 'open']);
         } catch (\Exception $e) {
             report($e);
 
@@ -103,14 +106,30 @@ final class SyncRepositoryDataHandler
 
     private function safeCodeScanningNodes(string $owner, string $name): array
     {
-        try {
-            $data = $this->graphql->query(self::CODE_SCANNING_QUERY, ['owner' => $owner, 'name' => $name]);
+        $nodes = [];
+        $after = null;
 
-            return $data['repository']['codeScanningAlerts']['nodes'] ?? [];
-        } catch (\Exception $e) {
-            report($e);
+        do {
+            try {
+                $data = $this->graphql->query(self::CODE_SCANNING_QUERY, ['owner' => $owner, 'name' => $name, 'after' => $after]);
+            } catch (\Exception $e) {
+                report($e);
 
-            return [];
-        }
+                break;
+            }
+
+            $alerts = $data['repository']['codeScanningAlerts'] ?? null;
+            if ($alerts === null) {
+                break;
+            }
+
+            $nodes = array_merge($nodes, $alerts['nodes'] ?? []);
+
+            $pageInfo = $alerts['pageInfo'] ?? null;
+            $hasNext = $pageInfo['hasNextPage'] ?? false;
+            $after = $hasNext ? ($pageInfo['endCursor'] ?? null) : null;
+        } while ($after !== null);
+
+        return $nodes;
     }
 }

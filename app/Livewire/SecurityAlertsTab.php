@@ -45,13 +45,13 @@ final class SecurityAlertsTab extends Component
         $this->resetPage();
     }
 
-    public function dismiss(int $githubId, string $type = 'dependabot'): void
+    public function dismiss(DismissSecurityAlertHandler $handler, int $githubId, string $type = 'dependabot'): void
     {
         $this->error = null;
         $this->status = null;
 
         try {
-            app(DismissSecurityAlertHandler::class)($this->repositoryId, $githubId, $type);
+            $handler($this->repositoryId, $githubId, $type);
             $this->status = 'Alert dismissed.';
         } catch (\Throwable $e) {
             $this->error = $e->getMessage();

@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Domain\GitHub\GitHubGraphQLClientInterface as DomainGraphQLClientInterface;
+use App\Domain\GitHub\GitHubRestClientInterface as DomainRestClientInterface;
 use App\Domain\Issue\Repositories\IssueRepositoryInterface;
 use App\Domain\PullRequest\Repositories\PullRequestRepositoryInterface;
 use App\Domain\Repository\Repositories\RepositoryRepositoryInterface;
@@ -41,6 +43,9 @@ class AppServiceProvider extends ServiceProvider
                 token: config('github.token'),
             );
         });
+
+        $this->app->bind(DomainRestClientInterface::class, fn () => $this->app->make(GitHubRestClientInterface::class));
+        $this->app->bind(DomainGraphQLClientInterface::class, fn () => $this->app->make(GitHubGraphQLClientInterface::class));
 
         $this->app->bind(GitHubGraphQLClientInterface::class, function () {
             return new GitHubGraphQLClient(

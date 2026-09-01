@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\PullRequest;
 
 use App\Domain\Shared\Url;
@@ -11,7 +13,7 @@ final class PullRequest
 
     public readonly int $number;
 
-    public readonly string $htmlUrl;
+    public readonly Url $htmlUrl;
 
     /** @param  array<string, mixed>  $checksStatus */
     public function __construct(
@@ -33,7 +35,7 @@ final class PullRequest
 
         $this->githubId = $githubId;
         $this->number = (new PRNumber($number))->value;
-        $this->htmlUrl = (new Url($htmlUrl))->value;
+        $this->htmlUrl = new Url($htmlUrl);
     }
 
     public function isOpen(): bool
